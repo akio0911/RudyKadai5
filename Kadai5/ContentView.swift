@@ -19,19 +19,25 @@ struct ContentView: View {
     }
 
     func checkNumAndCalcAnswer() {
-        if Int(inputTextNum1) == nil {
-            self.whichAlert = .num1Invalid
-        } else if Int(inputTextNum2) == nil {
-            self.whichAlert = .num2Invalid
-        } else if Int(inputTextNum2) == 0 {
-            self.whichAlert = .divByZero
-        } else {
-            onAlert = false
-            answerLabel = String(format: "%.1f", Double(inputTextNum1)! / Double(inputTextNum2)!)
+        guard let value1 = Int(inputTextNum1) else {
+            whichAlert = .num1Invalid
+            onAlert = true
             return
         }
-        onAlert = true
-        return
+
+        guard let value2 = Int(inputTextNum2) else {
+            whichAlert = .num2Invalid
+            onAlert = true
+            return
+        }
+
+        guard value2 != 0 else {
+            whichAlert = .divByZero
+            onAlert = true
+            return
+        }
+
+        answerLabel = String(format: "%.1f", value1 / value2)
     }
 
     var body: some View {
@@ -53,20 +59,18 @@ struct ContentView: View {
                 }, label: {
                     Text("計算")
                 }).alert(isPresented: $onAlert) {
+                    let message: String
                     switch whichAlert {
                     case.num1Invalid:
-                        return Alert(title: Text("課題5"),
-                                     message: Text("割られる数を入力して下さい"),
-                                     dismissButton: .default(Text("OK")))
+                        message = "割られる数を入力して下さい"
                     case.num2Invalid:
-                        return Alert(title: Text("課題5"),
-                                     message: Text("割る数を入力して下さい"),
-                                     dismissButton: .default(Text("OK")))
+                        message = "割る数を入力して下さい"
                     case.divByZero:
-                        return Alert(title: Text("課題5"),
-                                     message: Text("割る数には0を入力しないで下さい"),
-                                     dismissButton: .default(Text("OK")))
+                        message = "割る数には0を入力しないで下さい"
                     }
+                    return Alert(title: Text("課題5"),
+                                 message: Text(message),
+                                 dismissButton: .default(Text("OK")))
                     }
                 Text(answerLabel)
             }.padding()
